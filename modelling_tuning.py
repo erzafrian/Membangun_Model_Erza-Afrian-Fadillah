@@ -64,10 +64,31 @@ def train_with_tuning():
             mlflow.log_metric("precision", prec)
             mlflow.log_metric("recall", rec)
             mlflow.log_metric("f1_score", f1)
+			
+            # Confusion Matrix Plot
+            plt.figure(figsize=(10, 7))
+            cm = confusion_matrix(y_test, y_pred)
+            sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
+            plt.xlabel('Predicted')
+            plt.ylabel('Actual')
+            plt.title('Confusion Matrix KNN')
+            
+            # Simpan
+            plot_path = "confusion_matrix.png"
+            plt.savefig(plot_path)
+            mlflow.log_artifact(plot_path) # Upload ke MLflow Artifacts
+            plt.close()
 
+            # Classification Report (TXT)
+            report = classification_report(y_test, y_pred)
+            report_path = "classification_report.txt"
+            with open(report_path, "w") as f:
+                f.write(report)
+            mlflow.log_artifact(report_path)
+            
             # Log Model (Manual)
             mlflow.sklearn.log_model(best_model, "knn_tuned_model")
-
+			
             print(f"Selesai! Best Params: {grid_search.best_params_}")
             print(f"Accuracy Terbaik: {acc:.4f}")
 
